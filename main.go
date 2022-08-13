@@ -1,11 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
+
+var name string = "Builder"
 
 func main() {
-	fmt.Println("isPalindrome:", isPalindrome(1, 2, 3, 3, 1))
-}
-
-func isPalindrome(a, b, c, d, e int) bool {
-	return a == e && b == d
+	n := os.Getenv("NAME")
+	if n != "" {
+		name = n
+	}
+	fmt.Println("Hello,", name)
 }
