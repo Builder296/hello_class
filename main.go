@@ -5,22 +5,23 @@ import (
 )
 
 func main() {
-	// "abcdef" -> []string{"ab", "cd", "ef"}
-	// "abcdefg" -> []string{"ab", "cd", "ef", "g*"}
-	fmt.Println(couple("abcdef"))
-	fmt.Println(couple("abcdefg"))
-	fmt.Println(couple("สวัสดีครับ"))
+	m := map[string]int{
+		"G": 71,
+		"O": 79,
+		"P": 80,
+		"H": 72,
+		"E": 69,
+		"R": 82,
+	}
+	var keys = []string{}
+	var vals = []int{}
 
-	// Go https://go.dev/tour/moretypes/18
-
-}
-
-func couple(str string) []string {
-	var r []string
-	s := []rune(str)
-	for s = append(s, []rune("*")...); len(s) > 1; s = s[2:] {
-		r = append(r, string(s[:2]))
+	for i, v := range m {
+		keys = append(keys, i)
+		vals = append(vals, v)
 	}
 
-	return r
+	fmt.Println(keys)
+	fmt.Println(vals)
+
 }
