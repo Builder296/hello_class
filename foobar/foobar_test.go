@@ -6,6 +6,28 @@ import (
 	"github.com/Builder296/hello_class/foobar"
 )
 
+func TestSayAnyGivenOneWantOne(t *testing.T) {
+	given := "1"
+	want := "1"
+
+	result := foobar.SayAny(given)
+
+	if result != want {
+		t.Errorf("Say(%s) = %s; want %s", given, result, want)
+	}
+}
+
+func TestSayAnyGivenThreeWantFoo(t *testing.T) {
+	given := "3"
+	want := "foo"
+
+	result := foobar.SayAny(given)
+
+	if result != want {
+		t.Errorf("Say(%s) = %s; want %s", given, result, want)
+	}
+}
+
 func TestGivenOneWantOne(t *testing.T) {
 	given := 1
 	want := "1"

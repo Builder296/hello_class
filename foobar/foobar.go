@@ -14,3 +14,17 @@ func Say(n int) string {
 	}
 	return strconv.Itoa(n)
 }
+
+func SayAny(n any) string {
+	var num int
+	switch v := n.(type) {
+	case int:
+		num = v
+	case string:
+		num, _ = strconv.Atoi(v)
+	default:
+		return ""
+	}
+
+	return Say(num)
+}
