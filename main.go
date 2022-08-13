@@ -1,14 +1,22 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func main() {
-	var a []string
-	fmt.Println(a == nil)
+	// "abcdef" -> []string{"ab", "cd", "ef"}
+	// "abcdefg" -> []string{"ab", "cd", "ef", "g*"}
+	fmt.Println(couple("abcdef"))
+	fmt.Println(couple("abcdefg"))
+}
 
-	a = make([]string, 1, 2)
-	fmt.Println(a)
+func couple(s string) []string {
+	var result []string
 
-	a[0] = "Hello"
-	fmt.Println(a)
+	for s += "*"; len(s) > 1; s = s[2:] {
+		result = append(result, s[:2])
+	}
+
+	return result
 }
