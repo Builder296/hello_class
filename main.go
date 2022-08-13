@@ -7,13 +7,13 @@ import (
 
 type String string
 
-func (s String) toUpper() string {
-	return strings.ToUpper(string(s))
+func (s *String) toUpper() {
+	*s = String(strings.ToUpper(string(*s)))
 }
 
 func main() {
 
 	var a String = "abc"
-
-	fmt.Println(a.toUpper())
+	a.toUpper()
+	fmt.Println(a)
 }
