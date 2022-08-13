@@ -2,26 +2,18 @@ package main
 
 import (
 	"fmt"
+	"strings"
 )
 
+type String string
+
+func (s String) toUpper() string {
+	return strings.ToUpper(string(s))
+}
+
 func main() {
-	m := map[string]int{
-		"G": 71,
-		"O": 79,
-		"P": 80,
-		"H": 72,
-		"E": 69,
-		"R": 82,
-	}
-	var keys = []string{}
-	var vals = []int{}
 
-	for i, v := range m {
-		keys = append(keys, i)
-		vals = append(vals, v)
-	}
+	var a String = "abc"
 
-	fmt.Println(keys)
-	fmt.Println(vals)
-
+	fmt.Println(a.toUpper())
 }
