@@ -67,6 +67,8 @@ func (h todoHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-type". "application/json")
+
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(map[string]string{"massage": "success"}); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
