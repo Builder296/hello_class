@@ -7,6 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/Builder296/hello_class/store"
+
 	"github.com/Builder296/hello_class/todo"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v4"
@@ -29,7 +31,7 @@ func main() {
 			"message": "pong",
 		})
 	})
-	r.POST("/todos", todo.NewHandler(conn).NewTask)
+	r.POST("/todos", todo.NewHandler(store.NewStore(conn)).NewTask)
 
 	srv := &http.Server{
 		Addr:    ":8081",
