@@ -18,15 +18,10 @@ func main() {
 
 	defer conn.Close(context.Background())
 
-	// if _, err := conn.Exec(context.Background(), "INSERT INTO TODOS(title) VALUES($1)", "Hello db"); err != nil {
-	// 	// Handling error, if occur
-	// 	fmt.Println("Unable to insert due to: ", err)
-	// 	return
-	// }
-	// fmt.Println("Insertion Succesfull")
-
 	http.HandleFunc("/hello", helloHandler)
-	http.HandleFunc("/todos", todoNewTaskHandler)
+	http.Handle("/todos", todoHandler{
+		conn: conn,
+	})
 
 	log.Fatal(http.ListenAndServe(":8081", nil))
 }
@@ -39,12 +34,27 @@ type todoNewTask struct {
 	Title string `json:"title"`
 }
 
-func todoNewTaskHandler(w http.ResponseWriter, req *http.Request) {
+type todoHandler struct {
+	conn *pgx.Conn
+}
+
+func (h todoHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	decoder := json.NewDecoder(req.Body)
 	var t todoNewTask
 	err := decoder.Decode(&t)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if _, err := h.conn.Exec(context.Background(), "INSERT INTO TODOS(title) VALUES($1)", t.Title); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	encoder := json.NewEncoder(w)
+	if err := encoder.Encode(map[string]string{"massage": "success"}); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 }
