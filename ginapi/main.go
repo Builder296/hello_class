@@ -4,11 +4,12 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/Builder296/hello_class/store"
-
 	"github.com/Builder296/hello_class/todo"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v4"
@@ -34,11 +35,11 @@ func main() {
 	r.POST("/todos", todo.NewHandler(store.NewStore(conn)).NewTask)
 
 	srv := &http.Server{
-		Addr:    ":8081",
+		Addr:    ":" + os.Getenv("PORT"),
 		Handler: r,
 	}
 
-	go func() { // using go bacase ListenAndServe is infinity it will block!
+	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("listen: %s\n", err)
 		}
@@ -46,6 +47,13 @@ func main() {
 
 	<-ctx.Done()
 	stop()
+	log.Println("shutting down gracefully, press Ctrl+C again to force")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("Server forced to shutdown: ", err)
+	}
 
 	log.Println("Server exiting")
 }
