@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/Builder296/hello_class/todo"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,6 +21,7 @@ func main() {
 			"message": "pong",
 		})
 	})
+	r.POST("/todos", todo.NewTaskHandler)
 
 	srv := &http.Server{
 		Addr:    ":8081",
