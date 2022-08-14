@@ -37,6 +37,7 @@ func main() {
 	go log.Fatal(srv.ListenAndServe())
 
 	<-ctx.Done()
+	stop()
 
 	timeoutCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
