@@ -9,11 +9,19 @@ import (
 
 	"github.com/Builder296/hello_class/todo"
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v4"
 )
 
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
+
+	conn, err := pgx.Connect(context.Background(), "postgres://postgres:mysecretpassword@localhost:5432/myapp")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer conn.Close(context.Background())
 
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
@@ -21,7 +29,7 @@ func main() {
 			"message": "pong",
 		})
 	})
-	r.POST("/todos", todo.NewTaskHandler)
+	r.POST("/todos", todo.NewHandler(conn).NewTask)
 
 	srv := &http.Server{
 		Addr:    ":8081",
