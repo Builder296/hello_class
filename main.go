@@ -20,7 +20,7 @@ func main() {
 
 	http.HandleFunc("/hello", helloHandler)
 	http.Handle("/todos", todoHandler{
-		conn: conn,
+		store: NewStore(conn),
 	})
 
 	log.Fatal(http.ListenAndServe(":8081", nil))
@@ -30,12 +30,27 @@ func helloHandler(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, "Hello, world!\n")
 }
 
+type store struct {
+	conn *pgx.Conn
+}
+
+func NewStore(conn *pgx.Conn) *store {
+	return &store{conn: conn}
+}
+
+func (s store) NewTask(title string) error {
+	if _, err := s.conn.Exec(context.Background(), "INSERT INTO TODOS(title) VALUES($1)", title); err != nil {
+		return err
+	}
+	return nil
+}
+
 type todoNewTask struct {
 	Title string `json:"title"`
 }
 
 type todoHandler struct {
-	conn *pgx.Conn
+	store *store
 }
 
 func (h todoHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
@@ -47,7 +62,7 @@ func (h todoHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if _, err := h.conn.Exec(context.Background(), "INSERT INTO TODOS(title) VALUES($1)", t.Title); err != nil {
+	if err := h.store.NewTask(t.Title); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
