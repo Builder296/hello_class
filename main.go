@@ -6,6 +6,10 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/jackc/pgx/v4"
 )
@@ -19,11 +23,24 @@ func main() {
 	defer conn.Close(context.Background())
 
 	http.HandleFunc("/hello", helloHandler)
-	http.Handle("/todos", todoHandler{
-		store: NewStore(conn),
-	})
+
+	todoHandler := todoHandler{store: NewStore(conn)}
+	http.Handle("/todos", todoHandler)
 
 	log.Fatal(http.ListenAndServe(":8081", nil))
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINFO)
+	defer stop()
+
+	srv := &http.Server{Addr: ":8080"}
+
+	go log.Fatal(srv.ListenAndServe())
+
+	<-ctx.Done()
+
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	srv.Shutdown(timeoutCtx)
 }
 
 func helloHandler(w http.ResponseWriter, req *http.Request) {
@@ -67,7 +84,7 @@ func (h todoHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-type". "application/json")
+	w.Header().Set("Content-type", "application/json")
 
 	encoder := json.NewEncoder(w)
 	if err := encoder.Encode(map[string]string{"massage": "success"}); err != nil {
