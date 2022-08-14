@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -32,16 +33,22 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGINFO)
 	defer stop()
 
-	srv := &http.Server{Addr: ":8080"}
+	srv := &http.Server{Addr: ":8081"}
 
-	go log.Fatal(srv.ListenAndServe())
+	go func() {
+		srv.ListenAndServe()
+	}()
 
 	<-ctx.Done()
 	stop()
 
 	timeoutCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	srv.Shutdown(timeoutCtx)
+	if err := srv.Shutdown(timeoutCtx); err != nil {
+		log.Println(err)
+	}
+
+	fmt.Println("Server stopped")
 }
 
 func helloHandler(w http.ResponseWriter, req *http.Request) {
